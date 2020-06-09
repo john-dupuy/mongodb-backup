@@ -6,6 +6,8 @@ The MongoDB backup uses the 'cronjob' functionality of OpenShift to start a pod 
 
 This tool uses an existing container (RedHat MongoDB container) and overrides its command. There is no need to build a container.
 
+Note: The template/cronjob assumes that the admin password for the MongoDB is defined in a "mongodb" secret with the key "database-admin-password" 
+
 ## How to deploy the MongoDB backup
 
 To set up the backup:
@@ -14,7 +16,7 @@ To set up the backup:
 
 To create the cronjob, use
 ```
-oc process -f mongodb-backup-template.yaml MONGODB_ADMIN_PASSWORD=passw0rd <more parameters> | oc create -f -
+oc process -f mongodb-backup-template.yaml  <parameters> | oc create -f -
 ```
 
 To get a list of parameters, use
@@ -29,12 +31,18 @@ oc create -f mongodb-backup-template.yaml
 ```
 After you did that, you can use
 ```
-oc process mongodb-backup-template MONGODB_ADMIN_PASSWORD=passw0rd <more parameters> | oc create -f -
+oc process mongodb-backup-template <more parameters> | oc create -f -
 ```
 
 To disable the backup, you can simply remove the cronjob:
 ```
 oc delete cronjob mongodb-backup
+```
+
+### Test the job
+If you'd like to test the job without deploying it as a cronjob, run
+```
+oc create -f test-mongodb-backup-job.yaml
 ```
 
 ## Restore Database
