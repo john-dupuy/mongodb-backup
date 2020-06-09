@@ -24,8 +24,6 @@ parameters:
   - name: MONGODB_BACKUP_VOLUME_CLAIM
     description: 'Name of the volume claim to be used as storage'
     value: 'mongodb-backups'
-  - name: MONGODB_ADMIN_PASSWORD
-    description: 'MongoDB admin user''s password. Required.'
 objects:
   - apiVersion: batch/v1beta1
     kind: CronJob
@@ -65,10 +63,13 @@ objects:
                     cpu: 100m
                     memory: 512Mi
                   env:
+                    - name: MONGODB_ADMIN_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          key: database-admin-password
+                          name: mongodb
                     - name: MONGODB_BACKUP_KEEP
                       value: ${MONGODB_BACKUP_KEEP}
-                    - name: MONGODB_ADMIN_PASSWORD
-                      value: ${MONGODB_ADMIN_PASSWORD}
                   volumeMounts:
                     - name: mongodb-backups
                       mountPath: /var/lib/mongodb-backup
