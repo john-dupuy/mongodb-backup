@@ -2,7 +2,7 @@
 
 ## Overview
 
-The MongoDB backup uses the 'scheduledjob' functionality of OpenShift to start a pod in regular intervals. The pod dumps the database to a persistent volume and exits.
+The MongoDB backup uses the 'cronjob' functionality of OpenShift to start a pod in regular intervals. The pod dumps the database to a persistent volume and exits.
 
 This tool uses an existing container (RedHat MongoDB container) and overrides its command. There is no need to build a container.
 
@@ -12,7 +12,7 @@ To set up the backup:
 * Log in using `oc login`
 * Switch to the right project using `oc project <yourproject>`
 
-To create the scheduledjob, use
+To create the cronjob, use
 ```
 oc process -f mongodb-backup-template.yaml MONGODB_ADMIN_PASSWORD=passw0rd <more parameters> | oc create -f -
 ```
@@ -32,9 +32,9 @@ After you did that, you can use
 oc process mongodb-backup-template MONGODB_ADMIN_PASSWORD=passw0rd <more parameters> | oc create -f -
 ```
 
-To disable the backup, you can simply remove the scheduledjob:
+To disable the backup, you can simply remove the cronjob:
 ```
-oc delete scheduledjob mongodb-backup
+oc delete cronjob mongodb-backup
 ```
 
 ## Restore Database

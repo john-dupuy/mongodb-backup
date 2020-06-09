@@ -27,8 +27,8 @@ parameters:
   - name: MONGODB_ADMIN_PASSWORD
     description: 'MongoDB admin user''s password. Required.'
 objects:
-  - apiVersion: batch/v2alpha1
-    kind: ScheduledJob
+  - apiVersion: batch/v1beta1
+    kind: CronJob
     metadata:
       name: mongodb-backup
     spec:
