@@ -17,13 +17,13 @@ metadata:
 parameters:
   - name: MONGODB_BACKUP_KEEP
     description: 'Number of backups to keep'
-    value: '5'
+    value: '3'
   - name: MONGODB_BACKUP_SCHEDULE
-    description: 'Cron-like schedule expression. Default: Every hour at :39'
-    value: '39 * * * *'
+    description: 'Cron-like schedule expression. Default: Every Saturday at 12 AM'
+    value: '1 0 * * 6'
   - name: MONGODB_BACKUP_VOLUME_CLAIM
     description: 'Name of the volume claim to be used as storage'
-    value: 'mongodb-backup'
+    value: 'mongodb-backups'
   - name: MONGODB_ADMIN_PASSWORD
     description: 'MongoDB admin user''s password. Required.'
 objects:
@@ -39,12 +39,12 @@ objects:
           template:
             spec:
               volumes:
-                - name: mongodb-backup
+                - name: mongodb-backups
                   persistentVolumeClaim:
                     claimName: ${MONGODB_BACKUP_VOLUME_CLAIM}
               containers:
                 - name: mongodb-backup
-                  image: 'registry.access.redhat.com/rhscl/mongodb-32-rhel7@sha256:4143584de718ef477fe03e3ae15985c68e0ce9dca8ba089dfa5927e800e59e69'
+                  image: 'docker-registry.default.svc:5000/openshift/mongodb@sha256:ee70413940eba29389647bb352bcf5041da973de137f260ac3f95745d714a077'
                   command:
                     - 'bash'
                     - '-c'
@@ -70,6 +70,6 @@ objects:
                     - name: MONGODB_ADMIN_PASSWORD
                       value: ${MONGODB_ADMIN_PASSWORD}
                   volumeMounts:
-                    - name: mongodb-backup
+                    - name: mongodb-backups
                       mountPath: /var/lib/mongodb-backup
               restartPolicy: Never
