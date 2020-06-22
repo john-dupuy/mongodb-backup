@@ -27,7 +27,7 @@ spec:
               key: database-admin-password
               name: mongodb
         - name: MONGODB_BACKUP_KEEP
-          value: "3"
+          value: "2"
         image: docker-registry.default.svc:5000/openshift/mongodb@sha256:ee70413940eba29389647bb352bcf5041da973de137f260ac3f95745d714a077
         imagePullPolicy: IfNotPresent
         name: mongodb-backup
