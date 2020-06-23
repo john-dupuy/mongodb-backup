@@ -14,12 +14,14 @@ spec:
       - command:
         - bash
         - -c
-        - ls -rdt /var/lib/mongodb-backup/dump-* | head -n -$MONGODB_BACKUP_KEEP |
-          xargs rm -rf && DIR=/var/lib/mongodb-backup/dump-`date +%F-%T` && mongodump
-          -j 1 -u admin -p $MONGODB_ADMIN_PASSWORD --host $MONGODB_SERVICE_HOST --port
-          $MONGODB_SERVICE_PORT --authenticationDatabase=admin --gzip --out=$DIR &&
-          echo && echo "To restore, use:" && echo "~# mongorestore -u admin -p \$MONGODB_ADMIN_PASSWORD
-          --authenticationDatabase admin --gzip $DIR/DB_TO_RESTORE -d DB_TO_RESTORE_INTO"
+        - ls -rdt /var/lib/mongodb-backup/dump-* | head -n -$MONGODB_BACKUP_KEEP
+          | xargs rm -rf && DIR=/var/lib/mongodb-backup/dump-`date +%F-%T` &&
+          mongodump -j 1 -u admin -p $MONGODB_ADMIN_PASSWORD --host $MONGODB_SERVICE_HOST
+          --db $MONGODB_DATABASE --excludeCollectionsWithPrefix $MONGODB_EXCLUDED_COLLECTION_PREFIX
+          --port $MONGODB_SERVICE_PORT --authenticationDatabase=admin --gzip --out=$DIR
+          && echo && echo "To restore, use:" && echo "~# mongorestore -u admin
+          -p \$MONGODB_ADMIN_PASSWORD --authenticationDatabase admin --gzip $DIR/DB_TO_RESTORE
+          -d DB_TO_RESTORE_INTO"
         env:
         - name: MONGODB_ADMIN_PASSWORD
           valueFrom:
@@ -27,7 +29,11 @@ spec:
               key: database-admin-password
               name: mongodb
         - name: MONGODB_BACKUP_KEEP
-          value: "2"
+          value: "6"
+        - name: MONGODB_EXCLUDED_COLLECTION_PREFIX
+          value: "fs."
+        - name: MONGODB_DATABASE
+          value: "test_artifacts"
         image: docker-registry.default.svc:5000/openshift/mongodb@sha256:ee70413940eba29389647bb352bcf5041da973de137f260ac3f95745d714a077
         imagePullPolicy: IfNotPresent
         name: mongodb-backup

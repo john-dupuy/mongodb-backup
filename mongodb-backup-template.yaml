@@ -17,13 +17,19 @@ metadata:
 parameters:
   - name: MONGODB_BACKUP_KEEP
     description: 'Number of backups to keep'
-    value: '2'
+    value: '6'
   - name: MONGODB_BACKUP_SCHEDULE
     description: 'Cron-like schedule expression. Default: Every Saturday at 12 AM'
     value: '1 0 * * 6'
   - name: MONGODB_BACKUP_VOLUME_CLAIM
     description: 'Name of the volume claim to be used as storage'
     value: 'mongodb-backups'
+  - name: MONGODB_DATABASE
+    description: 'The name of the database to backup'
+    value: 'test_artifacts'
+  - name: MONGODB_EXCLUDED_COLLECTION_PREFIX
+    description: 'Prefix of collections to exclude in the DB dump'
+    value: 'fs.'    # the fs collections are too big
 objects:
   - apiVersion: batch/v1beta1
     kind: CronJob
@@ -51,7 +57,9 @@ objects:
                       head -n -$MONGODB_BACKUP_KEEP |
                       xargs rm -rf &&
                       DIR=/var/lib/mongodb-backup/dump-`date +%F-%T` &&
-                      mongodump -j 1 -u admin -p $MONGODB_ADMIN_PASSWORD --host $MONGODB_SERVICE_HOST --port $MONGODB_SERVICE_PORT --authenticationDatabase=admin --gzip --out=$DIR &&
+                      mongodump -j 1 -u admin -p $MONGODB_ADMIN_PASSWORD --host $MONGODB_SERVICE_HOST
+                      --db $MONGODB_DATABASE --excludeCollectionsWithPrefix $MONGODB_EXCLUDED_COLLECTION_PREFIX
+                      --port $MONGODB_SERVICE_PORT --authenticationDatabase=admin --gzip --out=$DIR &&
                       echo &&
                       echo "To restore, use:" &&
                       echo "~# mongorestore -u admin -p \$MONGODB_ADMIN_PASSWORD --authenticationDatabase admin --gzip $DIR/DB_TO_RESTORE -d DB_TO_RESTORE_INTO"
